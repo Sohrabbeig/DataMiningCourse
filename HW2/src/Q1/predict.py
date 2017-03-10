@@ -16,5 +16,6 @@ theta = np.dot(np.dot(inv(np.dot(trans, xTrain)), trans), yTrain)
 grades = np.dot(xTest,theta)
 del test['G0']
 test['G7'] = grades
+
 test.to_csv("test.csv", index=False)
 
