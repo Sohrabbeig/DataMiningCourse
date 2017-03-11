@@ -9,23 +9,22 @@ test = pd.read_csv("../../description/1/test.csv", header=None, names=['G1', 'G2
 test.insert(0, 'G0', 1)
 
 
-def f1(i):
+def decompose_training_set(i):
     x = train[train[i] != 0]
     y = x[i]
     del x[i]
     return x, y
 
 
-def f2(j):
-    col = list(xTrain)[j]
-    xTemp = xTrain[['G0', col]][xTrain[col] != 0].as_matrix()
-    yTemp = yTrain[xTrain[col] != 0].as_matrix()
+def calculate_theta(j):   # calculates theta for j th feature
+    xTemp = xTrain[['G0', j]][xTrain[j] != 0].as_matrix()
+    yTemp = yTrain[xTrain[j] != 0].as_matrix()
     trans = xTemp.transpose()
     t = np.dot(np.dot(inv(np.dot(trans, xTemp)), trans), yTemp)
     return t
 
 
-def f3(m):
+def fill_missing_values(m):   # filling missing values using theta array
     temp = 0
     iteration = 0
     for k in mylist:
@@ -38,61 +37,62 @@ def f3(m):
 mylist = list(train)[1:8]
 train_c = train.copy()
 for i in mylist:  # replacing missing values for each column
-    xTrain, yTrain = f1(i)
+    xTrain, yTrain = decompose_training_set(i)
     theta = {}
-    trainIndex = set(yTrain.index.values)
-    mainIndex = set(train.index.values)
-    index = mainIndex.difference(trainIndex)
-    for j in range(1, xTrain.shape[1]):
-        theta[list(xTrain)[j]] = f2(j)
+    trainIndex = set(yTrain.index.values)  # indices of non zero records
+    mainIndex = set(train.index.values)  # indices of the whole set
+    index = mainIndex.difference(trainIndex)   # indices of zero value records
+
+    for j in list(xTrain)[1:]:
+        theta[j] = calculate_theta(j)
 
     for m in index:
-        train_c[i][m] = f3(m)
+        train_c[i][m] = fill_missing_values(m)
 
 print(train_c)
 train_c = train_c.astype(int)
 train_c.to_csv("train.csv", index=False, header=False)
 
 
-def f4(i2):
-    x2 = test[test[i2] != 0]
-    y2 = x2[i2]
-    del x2[i2]
-    return x2, y2
+def decompose_test_set(i):
+    x = test[test[i] != 0]
+    y = x[i]
+    del x[i]
+    return x, y
 
 
-def f5(j2):
-    col2 = list(xTest)[j2]
-    xTemp2 = xTest[['G0', col2]][xTest[col2] != 0].as_matrix()
-    yTemp2 = yTest[xTest[col2] != 0].as_matrix()
-    trans2 = xTemp2.transpose()
-    t2 = np.dot(np.dot(inv(np.dot(trans2, xTemp2)), trans2), yTemp2)
-    return t2
+def calculate_theta2(j):  # calculates theta for j th feature
+    xTemp = xTest[['G0', j]][xTest[j] != 0].as_matrix()
+    yTemp = yTest[xTest[j] != 0].as_matrix()
+    trans = xTemp.transpose()
+    t = np.dot(np.dot(inv(np.dot(trans, xTemp)), trans), yTemp)
+    return t
 
 
-def f6(m2):
-    temp2 = 0
-    iteration2 = 0
-    for k2 in mylist2:
-        if train[k2][m2] != 0:
-            temp2 += theta[k2][0] + theta[k2][1] * test[k2][m2]
-            iteration2 += 1
-    return temp2 / iteration2
+def fill_missing_values2(m):  # filling missing values using theta2 array
+    temp = 0
+    iteration = 0
+    for k in mylist2:
+        if test[k][m] != 0:
+            temp += theta2[k][0] + theta2[k][1] * test[k][m]
+            iteration += 1
+    return temp / iteration
 
 
 mylist2 = list(test)[1:7]
 test_c = test.copy()
-for i2 in mylist2:  # replacing missing values for each column
-    xTest, yTest = f4(i2)
+for i in mylist2:  # replacing missing values for each column
+    xTest, yTest = decompose_test_set(i)
     theta2 = {}
-    testIndex = set(yTest.index.values)
-    mainIndex2 = set(test.index.values)
-    index2 = mainIndex2.difference(testIndex)
-    for j2 in range(1, xTest.shape[1]):
-        theta2[list(xTest)[j2]] = f5(j2)
+    testIndex = set(yTest.index.values)  # indices of non zero records
+    mainIndex2 = set(test.index.values)  # indices of the whole set
+    index2 = mainIndex2.difference(testIndex)  # indices of zero value records
 
-    for m2 in index2:
-        test_c[i2][m2] = f6(m2)
+    for j in list(xTest)[1:]:
+        theta2[j] = calculate_theta2(j)
+
+    for m in index2:
+        test_c[i][m] = fill_missing_values2(m)
 
 print(test_c)
 test_c = test_c.astype(int)
