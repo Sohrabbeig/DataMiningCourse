@@ -3,7 +3,6 @@ import random
 import pandas as pd
 import numpy as np
 import statistics as st
-from numpy import math
 
 # load data
 train = pd.read_csv("../../description/2/train.csv")
@@ -55,4 +54,4 @@ for i in range(0, train.shape[0]):
                 train_c[mis][i] = np.array(similarity)[:, curInd][random.randint(0, 4)]
             print(train_c[mis][i])
 print(train_c)
-train_c.to_csv("train.csv", index=False, header=False)
+train_c.to_csv("train.csv", index=False)
