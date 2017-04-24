@@ -1,32 +1,34 @@
-# Import the necessary modules and libraries
 import numpy as np
-from sklearn.tree import DecisionTreeRegressor
-import matplotlib.pyplot as plt
+from sklearn.preprocessing import LabelEncoder
+from sklearn.ensemble import RandomForestRegressor
 
-# Create a random dataset
-rng = np.random.RandomState(1)
-X = np.sort(5 * rng.rand(80, 1), axis=0)
-y = np.sin(X).ravel()
-y[::5] += 3 * (0.5 - rng.rand(16))
 
-# Fit regression model
-regr_1 = DecisionTreeRegressor(max_depth=2)
-regr_2 = DecisionTreeRegressor(max_depth=5)
-regr_1.fit(X, y)
-regr_2.fit(X, y)
+# regressor = RandomForestRegressor(n_estimators=150, min_samples_split=1)
+# regressor.fit(X, y)
+# print(regressor.predict(X))
 
-# Predict
-X_test = np.arange(0.0, 5.0, 0.01)[:, np.newaxis]
-y_1 = regr_1.predict(X_test)
-y_2 = regr_2.predict(X_test)
+import pandas as pd
 
-# Plot the results
-plt.figure()
-plt.scatter(X, y, c="darkorange", label="data")
-plt.plot(X_test, y_1, color="cornflowerblue", label="max_depth=2", linewidth=2)
-plt.plot(X_test, y_2, color="yellowgreen", label="max_depth=5", linewidth=2)
-plt.xlabel("data")
-plt.ylabel("target")
-plt.title("Decision Tree Regression")
-plt.legend()
-plt.show()
+# load data
+train = pd.read_csv("train.csv")
+test = pd.read_csv("test.csv")
+
+y = train['SalePrice'].as_matrix()
+del train['SalePrice']
+x = train.as_matrix()
+z = test.as_matrix()
+temp = 1461
+for i in x[:, 25]:
+    if type(i) != str:
+        print(temp)
+    temp += 1
+# transform 1st column to numbers
+# for i in range(0, 80):
+#     if not isinstance(x[0][i], (int, float)):
+#         print(x[0][i])
+#         x[:, i] = LabelEncoder().fit_transform(x[:, i])
+#
+# regressor = RandomForestRegressor(n_estimators=150, min_samples_split=1)
+# regressor.fit(x, y)
+# prediction = regressor.predict(z)
+# print(type(prediction))
